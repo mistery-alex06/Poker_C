@@ -41,11 +41,11 @@ wasm: $(WASM_SRCS)
 	mkdir -p $(WEB_DIR)
 	emcc $(WASM_SRCS) -Iinclude -O2 \
 	  -s WASM=1 \
+	  -s SINGLE_FILE=1 \
 	  -s EXPORTED_FUNCTIONS="['_wasm_crea_partita','_wasm_nuova_mano','_wasm_avanza','_wasm_azione_umano','_wasm_stato_json']" \
 	  -s EXPORTED_RUNTIME_METHODS="['ccall','cwrap']" \
 	  -s ALLOW_MEMORY_GROWTH=1 \
 	  -s MODULARIZE=1 -s EXPORT_NAME="PokerModule" \
-	  -s ENVIRONMENT=web \
 	  -o $(WEB_DIR)/poker.js
 
 clean-wasm:
