@@ -1,0 +1,21 @@
+# Oggetti compilati
+*.o
+*.obj
+obj/
+
+# Eseguibili
+bin/
+*.exe
+*.out
+poker
+
+# Output WebAssembly (generati da 'make wasm')
+web/poker.js
+web/poker.wasm
+
+# macOS
+.DS_Store
+
+# Editor/IDE
+.vscode/
+*.swp

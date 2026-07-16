@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Texas Hold'em - Motore C/Wasm</title>
+<style>
+  body { font-family: system-ui, sans-serif; background:#0b3d20; color:#fff; text-align:center; padding:2rem; }
+  #board { font-size:2rem; margin:1rem 0; letter-spacing:0.3rem; }
+  .giocatore { display:inline-block; border:1px solid #ffffff55; border-radius:8px;
+               padding:0.8rem 1.2rem; margin:0.5rem; min-width:140px; vertical-align:top; }
+  .giocatore.turno { border-color:#ffd54f; box-shadow:0 0 8px #ffd54f; }
+  .carte { font-size:1.4rem; margin-top:0.4rem; }
+  #controlli button { font-size:1rem; padding:0.5rem 1rem; margin:0.3rem; cursor:pointer; }
+  #messaggi { min-height:1.5rem; margin-top:1rem; color:#ffd54f; }
+  #raise-importo { width:70px; }
+</style>
+</head>
+<body>
+  <h1>Texas Hold'em</h1>
+  <div id="info">Fase: <span id="fase">-</span> | Piatto: <span id="piatto">0</span></div>
+  <div id="board">-</div>
+  <div id="giocatori"></div>
+
+  <div id="controlli">
+    <button id="btn-nuova-mano">Nuova Mano</button>
+    <button id="btn-fold">Fold</button>
+    <button id="btn-check">Check</button>
+    <button id="btn-call">Call</button>
+    <input id="raise-importo" type="number" placeholder="importo">
+    <button id="btn-raise">Raise</button>
+  </div>
+
+  <div id="messaggi"></div>
+
+  <script src="poker.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
