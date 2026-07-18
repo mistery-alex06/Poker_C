@@ -16,16 +16,18 @@ EMSCRIPTEN_KEEPALIVE void wasm_crea_partita(void);
 /* Inizia una nuova mano: mescola, distribuisce, posta i bui, avvia il preflop. */
 EMSCRIPTEN_KEEPALIVE void wasm_nuova_mano(void);
 
-/* Fa avanzare la partita: gioca automaticamente i turni dei bot e le fasi
- * (flop/turn/river/showdown). Ritorna:
- *   HUMAN_SEAT (0)  -> in attesa di un'azione umana (JS deve mostrare i controlli)
- *   -1              -> mano conclusa (showdown fatto, piatto assegnato)
+/* Fa avanzare la partita di UN passo atomico e ritorna:
+ *   HUMAN_SEAT (0)     -> in attesa di un'azione umana (JS deve mostrare i controlli)
+ *   1, 2, ...          -> indice del bot che ha appena agito (chiamare di nuovo per proseguire)
+ *   -1                 -> mano conclusa (showdown fatto, piatto assegnato)
+ *   -2                 -> fase avanzata (flop/turn/river appena rivelati, chiamare di nuovo)
  */
 EMSCRIPTEN_KEEPALIVE int wasm_avanza(void);
 
 /* Applica l'azione del giocatore umano (chiamare solo dopo che wasm_avanza
  * ha ritornato HUMAN_SEAT). azione: 0=FOLD 1=CHECK 2=CALL 3=RAISE.
- * importo e' usato solo per RAISE (puntata totale desiderata). */
+ * importo e' usato solo per RAISE: e' l'incremento "raise by" da sommare
+ * alla puntata massima corrente (non la puntata totale desiderata). */
 EMSCRIPTEN_KEEPALIVE void wasm_azione_umano(int azione, int importo);
 
 /* Ritorna lo stato corrente del gioco come stringa JSON (buffer statico interno).

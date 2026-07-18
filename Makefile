@@ -37,6 +37,8 @@ WEB_DIR   := web
 
 .PHONY: wasm clean-wasm
 
+# SINGLE_FILE=1: incorpora il .wasm come base64 dentro poker.js, cosi'
+# index.html si apre direttamente con doppio click (file://), senza server locale.
 wasm: $(WASM_SRCS)
 	mkdir -p $(WEB_DIR)
 	emcc $(WASM_SRCS) -Iinclude -O2 \

@@ -15,6 +15,11 @@ void tavolo_init(Tavolo *t, int n_giocatori, const char *nomi[], int stack_inizi
     t->piatto = 0;
     t->puntata_massima = 0;
     t->fase = FASE_PREFLOP;
+    t->showdown_vincitore = -1;
+    t->showdown_n_vincitori = 0;
+    for (int i = 0; i < MAX_GIOCATORI; i++) t->showdown_vincitori[i] = -1;
+    t->showdown_tipo = HIGH_CARD;
+    t->showdown_punteggio = 0;
 }
 
 int tavolo_conta_attivi_in_mano(const Tavolo *t) {
@@ -42,6 +47,11 @@ void tavolo_nuova_mano(Tavolo *t) {
     t->piatto = 0;
     t->puntata_massima = 0;
     t->fase = FASE_PREFLOP;
+    t->showdown_vincitore = -1;
+    t->showdown_n_vincitori = 0;
+    for (int i = 0; i < MAX_GIOCATORI; i++) t->showdown_vincitori[i] = -1;
+    t->showdown_tipo = HIGH_CARD;
+    t->showdown_punteggio = 0;
     t->dealer = (t->dealer + 1) % t->n_giocatori;
 
     for (int i = 0; i < t->n_giocatori; i++) {
@@ -136,8 +146,18 @@ void tavolo_giro_puntate(Tavolo *t, FunzioneDecisione decidi, int primo_giocator
                 break;
 
             case AZIONE_RAISE: {
-                int punta_minima = t->puntata_massima + t->grande_buio;
-                int punta_a = (importo > punta_minima) ? importo : punta_minima;
+                /* "Raise By": l'incremento si somma alla puntata MASSIMA del
+                 * tavolo (non alla puntata gia' fatta dal giocatore): la
+                 * puntata totale a cui il giocatore deve arrivare e'
+                 * puntata_massima + incremento. Il giocatore mette quindi
+                 * la differenza rispetto a quanto ha gia' messo in questo
+                 * giro (necessario = punta_a - puntata_corrente), che
+                 * copre sia l'eventuale call implicito sia il rilancio
+                 * vero e proprio. Regola del rilancio minimo: l'incremento
+                 * deve essere almeno pari al grande buio. */
+                int incremento_minimo = t->grande_buio;
+                int incremento = (importo > incremento_minimo) ? importo : incremento_minimo;
+                int punta_a = t->puntata_massima + incremento;
                 int necessario = punta_a - g->puntata_corrente;
                 t->piatto += player_punta(g, necessario);
                 if (g->puntata_corrente > t->puntata_massima) {
@@ -169,6 +189,8 @@ void tavolo_assegna_piatto(Tavolo *t) {
     int vincenti[MAX_GIOCATORI];
     int n_vincenti = 0;
     unsigned long miglior_punteggio = 0;
+    RisultatoMano miglior_risultato;
+    int ha_vincitore = 0;
 
     for (int i = 0; i < t->n_giocatori; i++) {
         Giocatore *g = &t->giocatori[i];
@@ -181,16 +203,24 @@ void tavolo_assegna_piatto(Tavolo *t) {
 
         RisultatoMano r = valuta_migliore_mano(carte, 2 + t->n_board);
 
-        if (n_vincenti == 0 || r.punteggio > miglior_punteggio) {
+        if (!ha_vincitore || r.punteggio > miglior_punteggio) {
             miglior_punteggio = r.punteggio;
+            miglior_risultato = r;
             vincenti[0] = i;
             n_vincenti = 1;
+            ha_vincitore = 1;
         } else if (r.punteggio == miglior_punteggio) {
             vincenti[n_vincenti++] = i;
         }
     }
 
     if (n_vincenti == 0) return;
+
+    t->showdown_n_vincitori = n_vincenti;
+    for (int k = 0; k < n_vincenti; k++) t->showdown_vincitori[k] = vincenti[k];
+    t->showdown_vincitore = vincenti[0];
+    t->showdown_tipo = miglior_risultato.tipo;
+    t->showdown_punteggio = miglior_punteggio;
 
     int quota = t->piatto / n_vincenti;
     int resto = t->piatto % n_vincenti;

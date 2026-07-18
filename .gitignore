@@ -1,10 +1,14 @@
-# Oggetti compilati
+# ============================================
+# COMPILAZIONE E BUILD
+# ============================================
 *.o
 *.obj
+*.a
+*.lib
 obj/
-
-# Eseguibili
 bin/
+dist/
+build/
 *.exe
 *.out
 poker
@@ -13,9 +17,129 @@ poker
 web/poker.js
 web/poker.wasm
 
+# Toolchain Emscripten (SDK completo, non fa parte del progetto)
+emsdk/
+
+# ============================================
+# INFORMAZIONI SENSIBILI
+# ============================================
+# File di configurazione con credenziali
+.env
+.env.local
+.env.*.local
+.env.*.private
+config.local.js
+config.local.json
+secrets.json
+credentials.json
+api_keys.json
+.credentials/
+
+# Database e dati locali
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+database.yml
+data/
+*.csv
+
+# Log files
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ============================================
+# DIPENDENZE E PACKAGE MANAGERS
+# ============================================
+node_modules/
+package-lock.json
+yarn.lock
+.npm/
+.node-gyp/
+.yarn/
+
+# ============================================
+# EDITOR / IDE
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-project
+.sublime-workspace
+.project
+.classpath
+.c9/
+*.VC.db
+*.VC.VC.opendb
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# ============================================
+# SESSIONI E CACHE
+# ============================================
+.cache/
+.session
+*.pid
+*.seed
+*.pid.lock
+.grunt
+.parcel-cache
+.next
+out/
+
+# ============================================
+# IDE VSCODE SPECIFICA
+# ============================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# ============================================
+# OS SPECIFICI
+# ============================================
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
 
-# Editor/IDE
-.vscode/
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+.Trash-*
+
+# ============================================
+# TEMPORANEI E BACKUP
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.backup
 *.swp
+*.swo
+*~
+\#*\#
+.\#*
+
+# ============================================
+# TESTER SPECIFICI E RUNTIME
+# ============================================
+.mocha
+.nyc_output/
+coverage/
+.lcov

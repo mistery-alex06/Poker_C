@@ -24,7 +24,8 @@ typedef enum {
 
 /* Callback di decisione: dato il giocatore e quanto deve pareggiare,
  * ritorna l'azione scelta. Se AZIONE_RAISE, *importo_puntato deve
- * contenere l'importo totale della puntata (non solo il rilancio). */
+ * contenere l'incremento "raise by" oltre la puntata massima corrente
+ * (non il totale assoluto della puntata). */
 typedef Azione (*FunzioneDecisione)(Giocatore *g, int da_pareggiare, int puntata_minima, int *importo_puntato);
 
 typedef struct {
@@ -39,6 +40,11 @@ typedef struct {
     int piccolo_buio;
     int grande_buio;
     FaseGioco fase;
+    int showdown_vincitore;
+    int showdown_n_vincitori;
+    int showdown_vincitori[MAX_GIOCATORI];
+    TipoMano showdown_tipo;
+    unsigned long showdown_punteggio;
 } Tavolo;
 
 void tavolo_init(Tavolo *t, int n_giocatori, const char *nomi[], int stack_iniziale,
