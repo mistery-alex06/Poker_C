@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Texas Hold'em</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Space+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1 class="brand">Texas Hold'em</h1>
+
+  <div class="game-layout">
+    <div class="table-wrap">
+      <div class="table-felt">
+
+        <div class="seat seat-dealer" id="seat-dealer">
+          <span class="dealer-badge" id="dealer-nome">-</span>
+        </div>
+
+        <div class="bots-row">
+          <div class="seat seat-bot1" id="seat-bot1">
+            <div class="seat-card">
+              <div class="seat-name" id="bot1-nome">Bot 1</div>
+              <div class="seat-stack"><span>Stack</span><span id="bot1-stack">0</span></div>
+              <div class="seat-bet"><span>Puntata</span><span id="bot1-puntata">0</span></div>
+              <div class="seat-cards" id="bot1-carte"></div>
+            </div>
+          </div>
+
+          <div class="seat seat-bot2" id="seat-bot2">
+            <div class="seat-card">
+              <div class="seat-name" id="bot2-nome">Bot 2</div>
+              <div class="seat-stack"><span>Stack</span><span id="bot2-stack">0</span></div>
+              <div class="seat-bet"><span>Puntata</span><span id="bot2-puntata">0</span></div>
+              <div class="seat-cards" id="bot2-carte"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="board-area">
+          <div class="phase-tag" id="fase">-</div>
+          <div class="community-cards" id="board"></div>
+          <div class="pot">
+            <span class="pot-label">Piatto</span>
+            <span class="pot-value" id="piatto">0</span>
+          </div>
+        </div>
+
+        <div class="seat seat-human" id="seat-human">
+          <div class="seat-card">
+            <div class="seat-name" id="human-nome">Tu</div>
+            <div class="seat-stack"><span>Stack</span><span id="human-stack">0</span></div>
+            <div class="seat-bet"><span>Puntata</span><span id="human-puntata">0</span></div>
+            <div class="seat-cards" id="human-carte"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="log-panel">
+      <div class="log-titolo">Registro mano</div>
+      <div class="log-azioni" id="log-azioni"></div>
+    </div>
+  </div>
+
+  <div class="messaggi" id="messaggi"></div>
+
+  <div class="action-bar">
+    <button id="btn-nuova-mano" class="btn btn-newhand">Nuova Mano</button>
+
+    <div class="action-group">
+      <button id="btn-fold" class="btn btn-fold">Fold</button>
+      <button id="btn-check" class="btn btn-check">Check</button>
+      <button id="btn-call" class="btn btn-call">Call</button>
+    </div>
+
+    <div class="raise-group">
+      <input id="raise-importo" type="number" placeholder="importo" min="0">
+      <button id="btn-raise" class="btn btn-raise">Raise</button>
+    </div>
+  </div>
+
+  <script src="poker.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
