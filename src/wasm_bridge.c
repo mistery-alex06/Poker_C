@@ -68,14 +68,19 @@ static Azione bot_decidi(const Giocatore *g, int da_pareggiare, int puntata_mini
     }
 
     int r = rand() % 100;
+    /* Sizing moderato: il rilancio resta un multiplo contenuto del grande
+     * buio (2-4x), con un tetto a un quarto dello stack per evitare che il
+     * bot rischi tutto casualmente su ogni mano. */
     int min_raise = puntata_minima > 0 ? puntata_minima : tavolo.grande_buio;
-    int twenty_pct = (g->stack * 20 + 99) / 100;
-    if (min_raise < twenty_pct) min_raise = twenty_pct;
-    int max_raise = g->stack;
-    int raise_amount = max_raise;
+    int max_raise = tavolo.grande_buio * 4;
+    int tetto_stack = g->stack / 4;
+    if (max_raise > tetto_stack) max_raise = tetto_stack;
+    if (max_raise < min_raise) max_raise = min_raise;
+    int raise_amount = min_raise;
     if (max_raise > min_raise) {
         raise_amount = min_raise + (rand() % (max_raise - min_raise + 1));
     }
+    if (raise_amount > g->stack) raise_amount = g->stack;
 
     int bluff_chance = 20;
     int pot_vuoto_raff = (tavolo.piatto == 0);
