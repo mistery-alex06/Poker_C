@@ -189,8 +189,8 @@ static void applica_azione(int seat, Azione a, int importo) {
 }
 
 void wasm_crea_partita(void) {
-    const char *nomi[] = {"Tu", "Bot 1", "Bot 2"};
-    tavolo_init(&tavolo, 3, nomi, 1000, 10, 20);
+    const char *nomi[] = {"Tu", "Bot 1", "Bot 2", "Bot 3", "Bot 4"};
+    tavolo_init(&tavolo, 5, nomi, 1000, 10, 20);
     fase_interna = FI_ATTESA_MANO;
     /* seed RNG for bot randomness */
     srand((unsigned)time(NULL));

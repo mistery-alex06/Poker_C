@@ -83,10 +83,12 @@ function disegnaStato(stato) {
 
   riempiCarte('board', stato.board, false);
 
-  const g = stato.giocatori; /* g[0]=Tu, g[1]=Bot1, g[2]=Bot2 (HUMAN_SEAT=0) */
+  const g = stato.giocatori; /* g[0]=Tu (HUMAN_SEAT=0), g[1..] = Bot 1, Bot 2, ... */
   aggiornaSeat('human', g[0], document.getElementById('seat-human'), stato.turno === 0);
-  aggiornaSeat('bot1', g[1], document.getElementById('seat-bot1'), stato.turno === 1);
-  aggiornaSeat('bot2', g[2], document.getElementById('seat-bot2'), stato.turno === 2);
+  for (let i = 1; i < g.length; i++) {
+    const seatEl = document.getElementById(`seat-bot${i}`);
+    if (seatEl) aggiornaSeat(`bot${i}`, g[i], seatEl, stato.turno === i);
+  }
 
   document.getElementById('dealer-nome').textContent = g[stato.dealer].nome;
 

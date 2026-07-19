@@ -173,8 +173,10 @@ body {
   left: 50%;
   transform: translateX(-50%);
 }
-.seat-bot1 { top: 14%; left: 4%; }
-.seat-bot2 { top: 14%; right: 4%; }
+.seat-bot1 { top: 40%; left: -3%; }
+.seat-bot2 { top: 4%; left: 15%; }
+.seat-bot3 { top: 4%; right: 15%; }
+.seat-bot4 { top: 40%; right: -3%; }
 .seat-human {
   bottom: -1.8rem;
   left: 50%;
@@ -455,7 +457,7 @@ body {
   }
   .table-felt { border-radius: var(--radius-lg); min-height: 420px; }
   .seat-dealer { position: static; transform: none; margin: 0 auto 0.6rem; }
-  .seat-bot1, .seat-bot2 {
+  .seat-bot1, .seat-bot2, .seat-bot3, .seat-bot4 {
     position: static;
     transform: none;
     display: inline-flex;
