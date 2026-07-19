@@ -10,16 +10,24 @@ typedef enum { FI_ATTESA_MANO = 0, FI_BETTING, FI_FINE_MANO } FaseInterna;
 static Tavolo tavolo;
 static FaseInterna fase_interna = FI_ATTESA_MANO;
 
+/* Numero massimo di rilanci consentiti in un singolo giro di puntate
+ * (bui compresi non contano). Oltre questo tetto i bot possono solo
+ * call/check/fold: evita le guerre di rilanci bot-contro-bot che
+ * altrimenti potrebbero proseguire finche' lo stack non si esaurisce. */
+#define MAX_RILANCI_PER_GIRO 4
+
 static struct {
     int idx;
     int da_agire;
     int bot_ha_rilanciato;
+    int n_rilanci;
 } giro;
 
 static void giro_inizia(int primo) {
     giro.idx = primo % tavolo.n_giocatori;
     giro.da_agire = 0;
     giro.bot_ha_rilanciato = 0;
+    giro.n_rilanci = 0;
     for (int i = 0; i < tavolo.n_giocatori; i++) {
         if (tavolo.giocatori[i].stato == ATTIVO) giro.da_agire++;
     }
@@ -82,18 +90,20 @@ static Azione bot_decidi(const Giocatore *g, int da_pareggiare, int puntata_mini
     }
     if (raise_amount > g->stack) raise_amount = g->stack;
 
+    int puo_rilanciare = giro.n_rilanci < MAX_RILANCI_PER_GIRO;
     int bluff_chance = 20;
     int pot_vuoto_raff = (tavolo.piatto == 0);
 
     if (da_pareggiare > 0) {
         /* Non ci sono check automatici qui. Se non c'è ancora stato un raise
-         * nel round e siamo il primo bot che può agire, rilanciamo subito. */
-        if (!giro.bot_ha_rilanciato) {
+         * nel round e siamo il primo bot che può agire, rilanciamo subito
+         * (a meno che il tetto rilanci non sia gia' stato raggiunto). */
+        if (puo_rilanciare && !giro.bot_ha_rilanciato) {
             if (importo_puntato) *importo_puntato = raise_amount;
             return AZIONE_RAISE;
         }
 
-        if (r < raise_base + 15) {
+        if (puo_rilanciare && r < raise_base + 15) {
             if (importo_puntato) *importo_puntato = raise_amount;
             return AZIONE_RAISE;
         }
@@ -104,14 +114,14 @@ static Azione bot_decidi(const Giocatore *g, int da_pareggiare, int puntata_mini
     }
 
     /* Se il piatto è vuoto, possono bluffare rilanciando anche con mano media. */
-    if (!giro.bot_ha_rilanciato) {
+    if (puo_rilanciare && !giro.bot_ha_rilanciato) {
         /* Se nessun bot ha ancora rilanciato in questo round, il primo bot
          * ad agire qui deve rilanciare anche su piatto libero. */
         if (importo_puntato) *importo_puntato = raise_amount;
         return AZIONE_RAISE;
     }
 
-    if ((pot_vuoto_raff && r < bluff_chance) || r < raise_base) {
+    if (puo_rilanciare && ((pot_vuoto_raff && r < bluff_chance) || r < raise_base)) {
         if (importo_puntato) *importo_puntato = raise_amount;
         return AZIONE_RAISE;
     }
@@ -157,6 +167,9 @@ static void applica_azione(int seat, Azione a, int importo) {
         }
     }
 
+    if (era_rilancio) {
+        giro.n_rilanci++;
+    }
     if (era_rilancio && seat != HUMAN_SEAT) {
         giro.bot_ha_rilanciato = 1;
     }
