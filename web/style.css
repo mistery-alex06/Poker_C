@@ -91,20 +91,7 @@ body {
   overflow: hidden;
 }
 
-/* Rosone dei semi inciso nel panno — elemento firma */
-.table-felt::before {
-  content: "♠ ♥ ♦ ♣";
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(2.2rem, 7vw, 4rem);
-  letter-spacing: 0.5em;
-  color: rgba(241, 233, 216, 0.05);
-  pointer-events: none;
-  transform: translateX(0.25em);
-}
+/* Rosone dei semi — ora vedi piu' sotto .suit-marquee per l'effetto insegna */
 
 /* ---------- Seat generico ---------- */
 .seat {
@@ -201,6 +188,82 @@ body {
   box-shadow: 0 4px 14px rgba(0,0,0,0.4);
 }
 .dealer-badge::before { content: "D"; font-weight: 700; color: var(--gold); }
+
+/* ---------- Insegna dei semi al centro del tavolo ----------
+   Effetto "led a staffetta" con dissolvenza incrociata: mentre un seme si
+   spegne, il successivo e' gia' in fase di accensione (nessuna pausa
+   completamente spenta tra l'uno e l'altro). Ordine: Picche -> Cuori ->
+   Quadri -> Fiori, poi il ciclo si ripete. Semi neri (Picche/Fiori)
+   brillano di bianco (il nero non potrebbe "brillare" su un tavolo
+   scuro), semi rossi (Cuori/Quadri) brillano di rosso. Il bagliore
+   (text-shadow) resta fisso e contenuto: e' la sola opacita' a variare,
+   con una curva a coseno rialzato che sovrappone dolcemente i vicini. */
+.suit-marquee {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  font-size: clamp(2.2rem, 7vw, 4rem);
+  letter-spacing: 0.5em;
+  pointer-events: none;
+  z-index: 1;
+  transform: translateX(0.25em);
+}
+
+.suit-glow {
+  opacity: 0.06;
+  animation-duration: 8s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  -webkit-text-stroke: 0.9px rgba(0, 0, 0, 0.7);
+  text-stroke: 0.9px rgba(0, 0, 0, 0.7);
+}
+
+.suit-picche, .suit-fiori {
+  color: #f5f2ea;
+  text-shadow: 0 0 6px rgba(255,255,255,0.55), 0 0 14px rgba(255,255,255,0.3), 0 0 22px rgba(255,255,255,0.15);
+}
+.suit-cuori, .suit-quadri {
+  color: #ff3b57;
+  text-shadow: 0 0 6px rgba(255,59,87,0.55), 0 0 14px rgba(255,59,87,0.3), 0 0 22px rgba(255,59,87,0.15);
+}
+
+.suit-picche { animation-name: glow-picche; }
+.suit-cuori  { animation-name: glow-cuori; }
+.suit-quadri { animation-name: glow-quadri; }
+.suit-fiori  { animation-name: glow-fiori; }
+
+/* Curva a coseno rialzato campionata ogni 12.5%: picco 0.65 (tenue),
+ * base 0.06, punto intermedio 0.35 esattamente dove inizia/finisce
+ * la campana del vicino, cosi' le due opacita' si incrociano a meta'. */
+@keyframes glow-picche {
+  0% { opacity: 0.65; }
+  12.5% { opacity: 0.35; }
+  25%, 75% { opacity: 0.06; }
+  87.5% { opacity: 0.35; }
+  100% { opacity: 0.65; }
+}
+@keyframes glow-cuori {
+  0%, 100% { opacity: 0.06; }
+  12.5% { opacity: 0.35; }
+  25% { opacity: 0.65; }
+  37.5% { opacity: 0.35; }
+  50% { opacity: 0.06; }
+}
+@keyframes glow-quadri {
+  0%, 25%, 75%, 100% { opacity: 0.06; }
+  37.5% { opacity: 0.35; }
+  50% { opacity: 0.65; }
+  62.5% { opacity: 0.35; }
+}
+@keyframes glow-fiori {
+  0%, 50%, 100% { opacity: 0.06; }
+  62.5% { opacity: 0.35; }
+  75% { opacity: 0.65; }
+  87.5% { opacity: 0.35; }
+}
 
 /* ---------- Area centrale: board + piatto ---------- */
 .board-area {
@@ -476,7 +539,7 @@ body {
     transform: none;
     margin: 0.4rem 0 0.2rem;
   }
-  .table-felt::before { display: none; }
+  .suit-marquee { display: none; }
   .bots-row { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
   .action-bar { flex-direction: column; gap: 0.8rem; }
   .action-group, .raise-group { border-left: none; padding-left: 0; }
@@ -484,4 +547,5 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .seat.turno .seat-card { animation: none; }
+  .suit-glow { animation: none; opacity: 0.06; text-shadow: none; }
 }
