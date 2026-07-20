@@ -8,7 +8,7 @@ Il progetto separa nettamente il motore logico (C) dall'interfaccia (HTML/CSS/JS
 
 ### Il tavolo
 
-Si gioca in **3**: tu (`Tu`, sempre seduto al seat 0) contro due bot (`Bot 1`, `Bot 2`). Ogni giocatore parte con **1000 chip**. I bui sono fissi: piccolo buio **10**, grande buio **20**. Il bottone del dealer ruota di un posto ad ogni nuova mano.
+Si gioca in **5**: tu (`Tu`, sempre seduto al seat 0) contro quattro bot (`Bot 1`-`Bot 4`). Ogni giocatore parte con **1000 chip**. I bui sono fissi: piccolo buio **10**, grande buio **20**. Il bottone del dealer ruota di un posto ad ogni nuova mano.
 
 ### Svolgimento di una mano
 
@@ -47,7 +47,11 @@ Per evitare partite infinite, **non si possono fare più di 4 rilanci nello stes
 
 ### I bot
 
-I due bot non seguono ciecamente il giocatore umano: valutano la forza della propria mano (in base alle carte comuni già scoperte), la posizione al tavolo e quanto piatto stanno già "impegnando" prima di decidere. Rilanciano con più convinzione quando la mano è forte, foldano quando non ne vale la pena. Il sizing dei rilanci è moderato (tipicamente 2-4x il grande buio, mai più di un quarto del proprio stack in un colpo), per restare competitivi senza essere temerari o rimanere bloccati in scambi di rilanci infiniti.
+I quattro bot non seguono ciecamente il giocatore umano: valutano la forza della propria mano (in base alle carte comuni già scoperte), la posizione al tavolo e quanto piatto stanno già "impegnando" prima di decidere. Rilanciano con più convinzione quando la mano è forte, foldano quando non ne vale la pena. Il sizing dei rilanci è moderato (tipicamente 2-4x il grande buio, mai più di un quarto del proprio stack in un colpo), per restare competitivi senza essere temerari o rimanere bloccati in scambi di rilanci infiniti.
+
+### Fine partita
+
+Quando un giocatore resta senza chip viene marcato eliminato e non riceve più carte. Il torneo finisce quando resta un solo giocatore con chip: il pulsante "Nuova Mano" si disabilita automaticamente e viene mostrato il vincitore.
 
 ## Caratteristiche tecniche
 
