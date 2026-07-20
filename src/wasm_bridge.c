@@ -196,7 +196,18 @@ void wasm_crea_partita(void) {
     srand((unsigned)time(NULL));
 }
 
+/* Numero di giocatori che hanno ancora chip in gioco (torneo non ancora
+ * concluso se sono >= 2). */
+static int conta_giocatori_con_chip(void) {
+    int n = 0;
+    for (int i = 0; i < tavolo.n_giocatori; i++) {
+        if (tavolo.giocatori[i].stack > 0) n++;
+    }
+    return n;
+}
+
 void wasm_nuova_mano(void) {
+    if (conta_giocatori_con_chip() <= 1) return; /* torneo gia' concluso */
     tavolo_nuova_mano(&tavolo);
     fase_interna = FI_BETTING;
     giro_inizia((tavolo.dealer + 3) % tavolo.n_giocatori); /* dopo il grande buio */
@@ -277,13 +288,21 @@ const char *wasm_stato_json(void) {
     char cod[8];
     int mostra_carte = (fase_interna == FI_FINE_MANO);
 
+    int attivi_torneo = conta_giocatori_con_chip();
+    int vincitore_torneo = -1;
+    if (attivi_torneo == 1) {
+        for (int i = 0; i < tavolo.n_giocatori; i++) {
+            if (tavolo.giocatori[i].stack > 0) { vincitore_torneo = i; break; }
+        }
+    }
+
     off += snprintf(buf + off, sizeof(buf) - off,
         "{\"fase\":\"%s\",\"piatto\":%d,\"punta_max\":%d,\"dealer\":%d,\"turno\":%d,"
-        "\"da_agire\":%d,\"sb\":%d,\"bb\":%d,\"board\":[",
+        "\"da_agire\":%d,\"sb\":%d,\"bb\":%d,\"attivi_torneo\":%d,\"vincitore_torneo\":%d,\"board\":[",
         fase_to_string(tavolo.fase), tavolo.piatto, tavolo.puntata_massima, tavolo.dealer,
         (fase_interna == FI_BETTING) ? giro.idx : -1,
         (fase_interna == FI_BETTING) ? giro.da_agire : 0,
-        tavolo.piccolo_buio, tavolo.grande_buio);
+        tavolo.piccolo_buio, tavolo.grande_buio, attivi_torneo, vincitore_torneo);
 
     for (int i = 0; i < tavolo.n_board; i++) {
         carta_codice(tavolo.board[i], cod, sizeof(cod));

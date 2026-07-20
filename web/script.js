@@ -106,6 +106,8 @@ function disegnaStato(stato) {
   document.getElementById('btn-fold').disabled  = !inTurnoUmano;
   document.getElementById('btn-raise').disabled = !inTurnoUmano;
   document.getElementById('raise-importo').disabled = !inTurnoUmano;
+
+  document.getElementById('btn-nuova-mano').disabled = stato.attivi_torneo <= 1;
 }
 
 function messaggio(testo) {
@@ -201,7 +203,14 @@ function risolviUnPasso() {
       aggiungiLog(messaggioShowdown, true);
     }
     aggiungiLog('— Fine mano —', true);
-    messaggio('Mano conclusa. Premi "Nuova Mano" per continuare.');
+
+    if (dopo.attivi_torneo <= 1 && dopo.vincitore_torneo >= 0) {
+      const vincitore = dopo.giocatori[dopo.vincitore_torneo];
+      aggiungiLog(`🏆 ${vincitore.nome} vince il torneo con ${vincitore.stack} chip!`, true);
+      messaggio(`Partita conclusa: ${vincitore.nome} ha vinto il torneo!`);
+    } else {
+      messaggio('Mano conclusa. Premi "Nuova Mano" per continuare.');
+    }
     return;
   }
   if (risultato === -2) {
@@ -229,6 +238,8 @@ function eseguiAzione(azione, importo = 0) {
 
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-nuova-mano').addEventListener('click', () => {
+    if (leggiStato().attivi_torneo <= 1) return; /* torneo concluso, bottone disabilitato */
+
     pulisciLog();
     nuovaMano();
     const stato = leggiStato();
