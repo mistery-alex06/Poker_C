@@ -160,10 +160,10 @@ body {
   left: 50%;
   transform: translateX(-50%);
 }
-.seat-bot1 { top: 40%; left: -3%; }
+.seat-bot1 { top: 40%; left: 3%; }
 .seat-bot2 { top: 4%; left: 15%; }
 .seat-bot3 { top: 4%; right: 15%; }
-.seat-bot4 { top: 40%; right: -3%; }
+.seat-bot4 { top: 40%; right: 3%; }
 .seat-human {
   bottom: -1.8rem;
   left: 50%;

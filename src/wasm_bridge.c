@@ -55,75 +55,44 @@ static Azione bot_decidi(const Giocatore *g, int da_pareggiare, int puntata_mini
     RisultatoMano mano;
     int forza = valuta_forza_bot(g, &mano);
 
-    /* Preferenza raise basata sulla forza della mano. */
-    int raise_base;
-    int call_base;
+    /* Probabilita' di rilancio: base ~30% anche a piatto vuoto/mano debole
+     * (mai solo call/check), che sale con la forza della mano. */
+    int prob_raise;
     switch (forza) {
-        case SCALA_COLORE: case POKER:
-            raise_base = 85; call_base = 10; break;
-        case FULL_HOUSE:
-            raise_base = 75; call_base = 20; break;
-        case COLORE:
-            raise_base = 70; call_base = 25; break;
-        case TRIS:
-            raise_base = 65; call_base = 30; break;
-        case DOPPIA_COPPIA:
-            raise_base = 45; call_base = 45; break;
-        case COPPIA:
-            raise_base = 35; call_base = 50; break;
-        default: /* HIGH_CARD */
-            raise_base = 20; call_base = 55; break;
+        case SCALA_COLORE: case POKER: prob_raise = 75; break;
+        case FULL_HOUSE:                prob_raise = 65; break;
+        case COLORE:                    prob_raise = 60; break;
+        case TRIS:                      prob_raise = 55; break;
+        case DOPPIA_COPPIA:             prob_raise = 45; break;
+        case COPPIA:                    prob_raise = 38; break;
+        default: /* HIGH_CARD */        prob_raise = 30; break;
     }
 
-    int r = rand() % 100;
-    /* Sizing moderato: il rilancio resta un multiplo contenuto del grande
-     * buio (2-4x), con un tetto a un quarto dello stack per evitare che il
-     * bot rischi tutto casualmente su ogni mano. */
+    /* Importo dinamico: frazione casuale (30%-100%) del piatto corrente
+     * (o 2x grande buio se il piatto e' ancora minimo), mai un valore
+     * fisso. Tetto a meta' stack, pavimento al rilancio minimo legale. */
+    int base_piatto = tavolo.piatto > 0 ? tavolo.piatto : tavolo.grande_buio * 2;
+    int frazione = 30 + (rand() % 71);
+    int raise_amount = (base_piatto * frazione) / 100;
     int min_raise = puntata_minima > 0 ? puntata_minima : tavolo.grande_buio;
-    int max_raise = tavolo.grande_buio * 4;
-    int tetto_stack = g->stack / 4;
-    if (max_raise > tetto_stack) max_raise = tetto_stack;
-    if (max_raise < min_raise) max_raise = min_raise;
-    int raise_amount = min_raise;
-    if (max_raise > min_raise) {
-        raise_amount = min_raise + (rand() % (max_raise - min_raise + 1));
-    }
+    int tetto_stack = g->stack / 2;
+    if (raise_amount < min_raise) raise_amount = min_raise;
+    if (raise_amount > tetto_stack) raise_amount = tetto_stack;
+    if (raise_amount < min_raise) raise_amount = min_raise;
     if (raise_amount > g->stack) raise_amount = g->stack;
 
     int puo_rilanciare = giro.n_rilanci < MAX_RILANCI_PER_GIRO;
-    int bluff_chance = 20;
-    int pot_vuoto_raff = (tavolo.piatto == 0);
+    int r = rand() % 100;
+
+    if (puo_rilanciare && r < prob_raise) {
+        if (importo_puntato) *importo_puntato = raise_amount;
+        return AZIONE_RAISE;
+    }
 
     if (da_pareggiare > 0) {
-        /* Non ci sono check automatici qui. Se non c'è ancora stato un raise
-         * nel round e siamo il primo bot che può agire, rilanciamo subito
-         * (a meno che il tetto rilanci non sia gia' stato raggiunto). */
-        if (puo_rilanciare && !giro.bot_ha_rilanciato) {
-            if (importo_puntato) *importo_puntato = raise_amount;
-            return AZIONE_RAISE;
-        }
-
-        if (puo_rilanciare && r < raise_base + 15) {
-            if (importo_puntato) *importo_puntato = raise_amount;
-            return AZIONE_RAISE;
-        }
-        if (r < raise_base + call_base + 10) {
-            return AZIONE_CALL;
-        }
+        int prob_call = (forza >= COPPIA) ? 70 : 45;
+        if (r < prob_raise + prob_call) return AZIONE_CALL;
         return AZIONE_FOLD;
-    }
-
-    /* Se il piatto è vuoto, possono bluffare rilanciando anche con mano media. */
-    if (puo_rilanciare && !giro.bot_ha_rilanciato) {
-        /* Se nessun bot ha ancora rilanciato in questo round, il primo bot
-         * ad agire qui deve rilanciare anche su piatto libero. */
-        if (importo_puntato) *importo_puntato = raise_amount;
-        return AZIONE_RAISE;
-    }
-
-    if (puo_rilanciare && ((pot_vuoto_raff && r < bluff_chance) || r < raise_base)) {
-        if (importo_puntato) *importo_puntato = raise_amount;
-        return AZIONE_RAISE;
     }
 
     return AZIONE_CHECK;
