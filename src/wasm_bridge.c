@@ -23,14 +23,29 @@ static struct {
     int n_rilanci;
 } giro;
 
+/* Ritorna il prossimo seat ATTIVO a partire da 'da' (incluso). Usato ovunque
+ * si aggiorni giro.idx, cosi' il campo non punta MAI, nemmeno per un istante,
+ * a un giocatore fold/eliminato/all-in: altrimenti il JSON di stato
+ * riporterebbe quel seat come "prossimo ad agire" prima ancora che
+ * wasm_avanza() abbia la possibilita' di saltarlo internamente. */
+static int prossimo_attivo(int da) {
+    int idx = da % tavolo.n_giocatori;
+    int tentativi = 0;
+    while (tavolo.giocatori[idx].stato != ATTIVO && tentativi < tavolo.n_giocatori) {
+        idx = (idx + 1) % tavolo.n_giocatori;
+        tentativi++;
+    }
+    return idx;
+}
+
 static void giro_inizia(int primo) {
-    giro.idx = primo % tavolo.n_giocatori;
     giro.da_agire = 0;
     giro.bot_ha_rilanciato = 0;
     giro.n_rilanci = 0;
     for (int i = 0; i < tavolo.n_giocatori; i++) {
         if (tavolo.giocatori[i].stato == ATTIVO) giro.da_agire++;
     }
+    giro.idx = prossimo_attivo(primo);
 }
 
 static int valuta_forza_bot(const Giocatore *g, RisultatoMano *out) {
@@ -153,7 +168,7 @@ static void applica_azione(int seat, Azione a, int importo) {
         giro.da_agire--;
     }
 
-    giro.idx = (seat + 1) % tavolo.n_giocatori;
+    giro.idx = prossimo_attivo(seat + 1);
     if (tavolo_conta_attivi_in_mano(&tavolo) <= 1) giro.da_agire = 0;
 }
 
